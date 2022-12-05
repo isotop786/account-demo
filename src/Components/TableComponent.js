@@ -2,6 +2,8 @@ import React, { useState,useEffect } from 'react';
 import { Space, Table, Tree,Modal,Button,Checkbox,Input} from 'antd';
 import { useSelector,useDispatch } from 'react-redux';
 import { selectedData,addData } from '../redux/actions/dataAction';
+// import { TreeComponet } from './TreeComponent';
+const { TreeNode } = Tree
 
 const TableComponent = () =>
 {
@@ -17,7 +19,8 @@ const TableComponent = () =>
   const [category, setCategory] = useState('');
   const [accountType, setAccountType] = useState('');
   const [userStatus, setUserStatus] = useState(false);
-  const [note,setNote] = useState('')
+  const [note, setNote] = useState('')
+  const [dataChanged,setDataChanged] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -38,7 +41,11 @@ const TableComponent = () =>
       user_status: userStatus
     }
 
+
+
     dispatch(addData(newData))
+
+    setDataChanged(!dataChanged)
 
     setIsModalOpen(false);
   };
@@ -54,25 +61,32 @@ const TableComponent = () =>
   }
 
   useEffect(() => {
-
-  },[isModalOpen])
+    setData(alldata)
+  },[data])
 
   const [columns, setColumns] = useState([
-    {
-    render: (text) => <><input type="checkbox" /> </>
-  },
+  //   {
+  //   render: (text) => <><input type="checkbox" /> </>
+  // },
   {
     title: 'Account Name',
-    dataIndex: ['name','code','id'],
+    dataIndex: 'children',
     key: 'name',
-    render: (text, data) => <>
-      <Tree>
-        <Tree.TreeNode key={data['code']} title={data['code']}>
-            <Tree.TreeNode key={data['id']} title={data['name']}></Tree.TreeNode>
-        </Tree.TreeNode>) 
-      </Tree>,
-
-    </>
+    // render: (data) => <>
+    //   <Tree>
+    //     <Tree.TreeNode key={data['code']} title={data}>
+    //         <Tree.TreeNode key={data['id']} title={data['name']}></Tree.TreeNode>
+    //     </Tree.TreeNode>) 
+    //   </Tree>,
+    // </>
+    // render: value => <TreeComponet values={value}/>
+    render: (value) => <Tree checkable>
+      {value.map((item) => {
+        return (
+          <TreeNode key={item.id} title={item['name']}></TreeNode>
+        )
+      })}
+    </Tree>
   },
   {
     title: 'Action',
