@@ -34,7 +34,8 @@ const TableComponent = () =>
       category: category,
       code: Math.floor(Math.random() * parseInt(selected? selected :101)),
       parent_code: selected,
-      note:note
+      note: note,
+      user_status: userStatus
     }
 
     dispatch(addData(newData))
