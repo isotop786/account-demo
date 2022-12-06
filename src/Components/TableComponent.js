@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { Space, Table, Tree,Modal,Button,Checkbox,Input} from 'antd';
+import { Space, Table, Tree,Modal,Button,Checkbox,Input, Divider} from 'antd';
 import { useSelector,useDispatch } from 'react-redux';
 import { selectedData,addData } from '../redux/actions/dataAction';
 // import { TreeComponet } from './TreeComponent';
@@ -11,7 +11,6 @@ const TableComponent = () =>
   const dispatch = useDispatch();
   const alldata = useSelector((state) => state.allData.data)
   const selected = useSelector((state) => state.allData.selectedData)
-
   const { TextArea } = Input;
 
   const [data, setData] = useState([]);
@@ -36,9 +35,9 @@ const TableComponent = () =>
       type: accountType,
       category: category,
       code: Math.floor(Math.random() * parseInt(selected? selected :101)),
-      parent_code: selected,
+      parent_code: selected? selected : 100,
       note: note,
-      user_status: userStatus
+      user_status: userStatus,
     }
 
 
@@ -60,33 +59,30 @@ const TableComponent = () =>
     setIsModalOpen(true)
   }
 
+
+
   useEffect(() => {
-    setData(alldata)
-  },[data])
+        const generateChild = (arr) => {
+        return arr.reduce((acc, val, ind, array) => {
+            const childs = [];
+            array.forEach((el) => {
+            if (el.parent_code === val.code) {
+                childs.push(el);
+            }
+            });
+            return acc.concat({ ...val, childs });
+        }, []);
+        };
+    // console.log(generateChild(alldata));
+    setData(generateChild(alldata))
+  },[alldata])
 
   const [columns, setColumns] = useState([
-  //   {
-  //   render: (text) => <><input type="checkbox" /> </>
-  // },
   {
     title: 'Account Name',
-    dataIndex: 'children',
+    dataIndex:'name',
     key: 'name',
-    // render: (data) => <>
-    //   <Tree>
-    //     <Tree.TreeNode key={data['code']} title={data}>
-    //         <Tree.TreeNode key={data['id']} title={data['name']}></Tree.TreeNode>
-    //     </Tree.TreeNode>) 
-    //   </Tree>,
-    // </>
-    // render: value => <TreeComponet values={value}/>
-    render: (value) => <Tree checkable>
-      {value.map((item) => {
-        return (
-          <TreeNode key={item.id} title={item['name']}></TreeNode>
-        )
-      })}
-    </Tree>
+    render: name => <a>{name}</a>
   },
   {
     title: 'Action',
@@ -100,7 +96,7 @@ const TableComponent = () =>
   },
   {
     title: 'Account Category',
-    dataIndex: 'category',
+    dataIndex: 'type',
     key: 'category',
    
   },
@@ -117,9 +113,39 @@ const TableComponent = () =>
   },
   ])
 
+  const nestCol = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name"
+    },
+    {
+      title: "Category",
+      dataIndex: "type",
+      key:"type"
+    },
+    {
+      title: "Parent Code",
+      dataIndex: "parent_code",
+      key:"parent_code"
+    }
+  ]
+
+
   return (
     <>
-    <Table columns={columns} dataSource={alldata} pagination={false} />
+      <Table columns={columns}
+        dataSource={data.filter(item => item.childs.length >0)}
+        expandable={{
+          rowExpandable: (data) => data.childs.length > 0,
+          expandedRowRender: (data) => {
+            return (
+              <Table columns={nestCol} dataSource={data.childs} pagination={false} />
+            )
+          },
+          defaultExpandAllRows:false
+        }}
+        pagination={false} />
         
       <Modal title="Add Account" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <p>Account Code: {selected}</p>
