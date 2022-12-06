@@ -35,7 +35,7 @@ const TableComponent = () =>
       type: accountType,
       category: category,
       code: Math.floor(Math.random() * parseInt(selected? selected :101)),
-      parent_code: selected? selected : 100,
+      parent_code: selected,
       note: note,
       user_status: userStatus,
     }
@@ -86,7 +86,7 @@ const TableComponent = () =>
   },
   {
     title: 'Action',
-    dataIndex:'parent_code',
+    dataIndex:'code',
     render: (code) => <><Button type='primary' size='middle' onClick={e => onClick(e,code)}>Add</Button></>
   },
   {
